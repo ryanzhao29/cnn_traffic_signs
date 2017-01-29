@@ -27,7 +27,8 @@ class build_NN(self):
     def flatten_layer(layer):
         layer_shape = layer.get_shape()
        # num_fueatures = layer_shape[1:4].num_elements()
-        num_fueatures = (int(img_size/4) ** 2) * num_filters2
+        num_fueatures = (int(img_size/4) ** 2) * num_filters2 #this part is hard coded because we 
+        #have two max pooling layers that reduce the size of the image to img_size/4.
         layer_flat = tf.reshape(layer,[-1,num_fueatures]) 
         return layer_flat, num_fueatures
 
@@ -45,7 +46,7 @@ class build_NN(self):
         layer_conv1, weight_conv11 = new_convolution_layer(input = x_image, num_input = num_input1, filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters1,use_pooling = True, padding = 'SAME')
         layer_conv2, weight_conv12 = new_convolution_layer(input = layer_conv1, num_input = num_filters1,  filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters2, use_pooling = True, padding = 'SAME')
         flatten_layer_conv2, size_of_flattened_conv2 = flatten_layer(layer_conv2)
-        #first fc layer-------------------------------------------------------------------
+        #first fc layer, training model can only take images of fixed size 
         weights_fc1 = new_weights(shape = [size_of_flattened_conv2, num_fc1])
         bias_fc1 = new_bias(length = num_fc1)
         layer_fc1 = tf.matmul(flatten_layer_conv2, weights_fc1) + bias_fc1
@@ -63,13 +64,17 @@ class build_NN(self):
         layer_conv1, weight_conv11 = new_convolution_layer(input = x_image, num_input = num_input1, filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters1,use_pooling = True, padding = 'SAME')
         layer_conv2, weight_conv12 = new_convolution_layer(input = layer_conv1, num_input = num_filters1,  filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters2, use_pooling = True, padding = 'SAME')
         flatten_layer_conv2, size_of_flattened_conv2 = flatten_layer(layer_conv2)
-        #first fc layer-------------------------------------------------------------------
+        #first fc layer, here the fully connected layers are converted to conv layers so the network can 'slide' on images
+        #this is the only difference between training model that takes images of fixed size and detection model that can
+        #handle images of any sizes 
         weights_fc1 = new_weights(shape = [size_of_flattened_conv2, num_fc1])
         weights_conv3 = tf.reshape(weights_fc1, [int(image_size/4), int(image_size/4), num_filters2, num_fc1])
         bias_fc1 = new_bias(length = num_fc1)
         layer_conv3 = tf.nn.conv2d(input = layer_conv2,  filter = weights_conv3, strides = [1,2,2,1],  padding = 'VALID') + bias_fc1
         layer_conv3 = tf.nn.relu(layer_conv3)
-        #second fc layer-------------------------------------------------------------------
+        #second fc layer, here the fully connected layers are converted to conv layers so the network can 'slide' on images
+        #this is the only difference between training model that takes images of fixed size and detection model that can
+        #handle images of any sizes 
         weights_fc2 = new_weights(shape = [num_fc1, num_classification])
         weights_conv4 = tf.reshape(weights_fc2, [1, 1, num_fc1, num_classification])
         bias_fc2 = new_bias(length = num_classification)
