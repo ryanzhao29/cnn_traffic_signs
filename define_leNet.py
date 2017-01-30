@@ -1,3 +1,6 @@
+#this file is a realization of the lenet propsed by lecuun
+#the training mode is the default model of lenet
+#whereas the detection model is full convolutional net where the fc layers are replaced by conv layers so the network can take images of any sizes. 
 from define_neural_network import *
 from global_head_file import *
 class def_leNet():
@@ -12,7 +15,6 @@ class def_leNet():
         self.filter_size_conv_layer2 = 5
         self.num_filter_conv_layer2 = 16
         self.use_maxpooling_conv_layer2 = True
-
         self.num_fc_layer1 = 120
         self.num_fc_layer2 = 84
         self.num_fc_layer3 = classification_num

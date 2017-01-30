@@ -11,9 +11,7 @@ def getData(work_dir, classification_num, start, batch_size, shuffle = False):
             imageName = imageNames[file_num]
             imageName = os.path.join(dir_full_path, imageName)
             img = cv2.imread(imageName)
-            #imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            #imgGrayFilter = cv2.GaussianBlur(imgGray, (3,3), 0)
-            img_resize = cv2.resize(img,(image_size, image_size))
+            img_resize = cv2.resize(img, (image_size, image_size))
             #cv2.imshow('resized_image', img_resize)
             #cv2.waitKey(0)
             for iii in range(data_augmentation_factor):
@@ -24,11 +22,10 @@ def getData(work_dir, classification_num, start, batch_size, shuffle = False):
                 trainY.append(placeholder_temp)
     return trainX, trainY
 
-def image_distortion(img): #the function is not yet implemented
+def image_distortion(img): 
     distored_image = translate_img(img)
-    distored_image = adj_contrast_and_brightness(distored_image)
+    distored_image = adj_contrast_brightness_noise(distored_image)
     return distored_image
-
 
 def translate_img(img):
     offsetx = (random.uniform(-image_size/10, image_size/10))
@@ -37,8 +34,8 @@ def translate_img(img):
     translated_image = cv2.warpAffine(img, trans_mat, (image_size, image_size))
     return translated_image
 
-def adj_contrast_and_brightness(img):
-    original_img = np.copy(img)
+def adj_contrast_brightness_noise(img):
+    #original_img = np.copy(img)
     contrast_ratio = random.gauss(1, 0.3)
     brightness_adjust = random.uniform(-50, 50)
     noise_mask = np.zeros_like(img)

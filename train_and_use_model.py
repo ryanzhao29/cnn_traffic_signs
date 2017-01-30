@@ -13,8 +13,8 @@ def train_network(num_iterations, resume = 0):
     y_pred = tf.nn.softmax(raw_output)
     y_pred_cls = tf.argmax(y_pred, dimension = 1)
     if resume == 1:
-        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-4).minimize(cost)
-        #optimizer = tf.train.AdamOptimizer().minimize(cost)
+        #optimizer = tf.train.AdamOptimizer(learning_rate = 1e-4).minimize(cost)
+        optimizer = tf.train.AdamOptimizer().minimize(cost)
     else:
         optimizer = tf.train.AdamOptimizer().minimize(cost)
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
@@ -30,7 +30,7 @@ def train_network(num_iterations, resume = 0):
         for i in range(num_iterations):
             total_cost = 0
             start = 0
-            max_num_of_file = 221 #this is the data of folder 0000 which contais the least amount of data of 
+            max_num_of_file = 221 #this is the data length of folder 0000 which contais the least amount of data of 
             #all catetories
             while start < max_num_of_file - batch_size:
                 x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, batch_size)
@@ -94,4 +94,4 @@ if train_mode == 0:
     dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00003\\'
     batch_detect_image(dir)
 else:
-    train_network(100, 1)
+    train_network(50, 1)
