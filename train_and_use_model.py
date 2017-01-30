@@ -20,7 +20,7 @@ def train_network(num_iterations, resume = 0):
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     saver = tf.train.Saver()
-    fileToSave = data_dir + "model.ckpt"
+    fileToSave = data_dir + "\model.ckpt"
     error = 1000
     with tf.Session() as sess:
         start = 0
@@ -51,28 +51,47 @@ def train_network(num_iterations, resume = 0):
     sess.close()
 
 def detect_traffic_sign(image): #this image should be a color image of size 32 x 32 
-    classification = leNet.get_training_model()
+    classification = leNet.get_detection_model()
+    y_pred = tf.nn.softmax(classification[0])
+    y_cls = tf.argmax(y_pred, dimension = 2)
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        checkpoint_path = data_dir + "model.ckpt"
+        checkpoint_path = data_dir + "\model.ckpt"
         ckpt = tf.train.get_checkpoint_state(data_dir)
         #if ckpt and ckpt.model_checkpoint_path:
         saver.restore(sess, checkpoint_path)
-        raw_data = sess.run([classification], feed_dict={global_x: [image]})
-        classification_vector = tf.nn.softmax(raw_data)
-        classification = tf.arg_max(classification_vector)
+        classification = sess.run([y_cls], feed_dict={global_x: [image]})
+        classification = classification[0][0][0]
         cv2.imshow(traffic_sign_dictionary[classification], image)
-        cv2.waitKey(0)
+        cv2.waitKey(20)
+        tf.reset_default_graph()
+        sess.close()
 
 def batch_detect_image(dir):
-    for image_name in os.listdir(dir):
-        image_path = dir + image_name
-        image = cv2.imread(image_path)
-        detect_traffic_sign(image)
+    classification = leNet.get_detection_model()
+    y_pred = tf.nn.softmax(classification[0])
+    y_cls = tf.argmax(y_pred, dimension = 2)
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        checkpoint_path = data_dir + "\model.ckpt"
+        saver.restore(sess, checkpoint_path)
+        #if ckpt and ckpt.model_checkpoint_path:
+        for image_name in os.listdir(dir):
+            image_path = dir + image_name
+            image = cv2.imread(image_path)
+            img_resize = cv2.resize(image,(image_size, image_size))
+            classification = sess.run([y_cls], feed_dict={global_x: [img_resize]})
+            classification = classification[0][0][0]
+            cv2.imshow(traffic_sign_dictionary[classification], image)
+            print(traffic_sign_dictionary[classification])
+            cv2.waitKey(0)
+        sess.close()
+
 train_mode = 0
 if train_mode == 0:
-    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00000\\'
+    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00003\\'
     batch_detect_image(dir)
 else:
-    train_network(3, 1)
+    train_network(50, 1)

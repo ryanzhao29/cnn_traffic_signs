@@ -14,7 +14,7 @@ batch_size = 20
 global_x = tf.placeholder(tf.float32, shape = [None, None, None, color_channels])
 global_y = tf.placeholder(tf.float32, shape = [None, classification_num])
 image_dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\\'
-data_dir = r'C:\Users\user\Desktop\test\checkpoint\\'
+data_dir = r'C:\Users\user\Desktop\test\checkpoint'
 #dirs = [str(ii) for ii in range(classification_num)]
 classification_output_placeholder = [0 for x in range(classification_num)]
 
