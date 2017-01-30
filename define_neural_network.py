@@ -4,7 +4,7 @@ def new_weights(shape):
     return tf.Variable(tf.random_normal(shape, 0, 0.05))
 
 def new_bias(length):
-    return tf.Variable(tf.random_normal( shape = [length]))
+    return tf.Variable(tf.random_normal(shape = [length]))
 
 def new_convolution_layer(input, num_input, filter_size1, filter_size2, num_output, use_pooling = True, padding = 'SAME'):
     #conv 层的的权重的纬度[卷积滤波器宽度, 卷积滤波器宽度, 本层输入数量, 本层输出数量]
@@ -33,7 +33,7 @@ def new_fc_layer(input,num_inputs, num_outputs, use_relu = True):
         layer = tf.nn.relu(layer)
     return layer,weights,bias
 
-def get_train_model(x): #this is an example of a simple cnn for training purpose
+def get_train_model(x): #this is an example of a simple cnn for training purpose, not used anywhere in the code
     #x_image = tf.reshape(x, [-1, img_size, img_size, num_input1]) 
     layer_conv1, weight_conv11 = new_convolution_layer(input = x, num_input = num_input1, filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters1,use_pooling = True, padding = 'SAME')
     layer_conv2, weight_conv12 = new_convolution_layer(input = layer_conv1, num_input = num_filters1,  filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters2, use_pooling = True, padding = 'SAME')
@@ -51,7 +51,7 @@ def get_train_model(x): #this is an example of a simple cnn for training purpose
     cost = tf.reduce_mean(cross_entropy) + (tf.nn.l2_loss(bias_fc1) + tf.nn.l2_loss(weights_fc2) + tf.nn.l2_loss(weights_fc1) + tf.nn.l2_loss(bias_fc1)) * reg_facor
     return layer_fc2,cost
 
-def get_detection_model(x):  #this is an example of a simple cnn for detection purpose
+def get_detection_model(x):  #this is an example of a simple cnn for detection purpose, not use anywhere in the code
     layer_conv1, weight_conv11 = new_convolution_layer(input = x, num_input = num_input1, filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters1,use_pooling = True, padding = 'SAME')
     layer_conv2, weight_conv12 = new_convolution_layer(input = layer_conv1, num_input = num_filters1,  filter_size1 = filter_size, filter_size2 = filter_size, num_output = num_filters2, use_pooling = True, padding = 'SAME')
     flatten_layer_conv2, size_of_flattened_conv2 = flatten_layer(layer_conv2)
@@ -73,51 +73,3 @@ def get_detection_model(x):  #this is an example of a simple cnn for detection p
     #catergory = tf.argmax(layer_conv4)
     return layer_conv4
 
-
-
-#def train_neural_network(num_iterations, dirs):
-#    y_true = tf.placeholder(tf.float32,shape = [None, num_classification], name = 'y_true')
-#    y_true_cls = tf.argmax(y_true, dimension = 1)
-#    raw_prediction, cost = get_train_model(x)
-#    y_pred = tf.nn.softmax(raw_prediction[0])
-#    y_pred_cls = tf.argmax(y_pred, dimension = 1)
-#    #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = raw_prediction, labels = y)
-#    #cost = tf.reduce_mean(cross_entropy) + tf.nn.l2_loss()
-#    if resume == 1:
-#        optimizer = tf.train.AdamOptimizer(learning_rate = 1e-4).minimize(cost)
-#        #optimizer = tf.train.AdamOptimizer().minimize(cost)
-#    else:
-#        optimizer = tf.train.AdamOptimizer().minimize(cost)
-#    correct_prediction = tf.equal(y_pred_cls, y_true_cls)
-#    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-#    saver = tf.train.Saver()
-#    fileToSave = os.path.join(dataDir, "StopSignModel.ckpt")
-#    error = 1000
-#    with tf.Session() as sess:
-#        start = 0
-#        global resume
-#        sess.run(tf.global_variables_initializer())
-#        if resume == 1:
-#            saver.restore(sess, fileToSave)
-#        poslen = len(os.listdir(dirs[0]))
-#        for i in range(num_iterations):
-#            total_cost = 0
-#            start = 0
-#            max_num_of_file = 13000
-#            while start < max_num_of_file - batch_size:
-#                x_train, y_train = getData(dirs, num_classification, start, batch_size)
-#                feed_dict_train = {x: x_train, y: y_train}
-#                nothing, c = sess.run([optimizer, cost], feed_dict = feed_dict_train)
-#                total_cost += c
-#                start += batch_size
-#            print('Epoch', i, 'Completed out of ', num_iterations, 'loss is', total_cost)
-#            if start >= max_num_of_file - 2* batch_size:
-#                if total_cost < error:
-#                    saver.save(sess, fileToSave)
-#                    error = total_cost
-#        # fileToSave = os.path.join(dataDir, "StopSignModel.ckpt")
-#        # print(saver.save(sess,  fileToSave))
-#        # x_test, y_test_true = getData(pos1, neg, max_num_of_file, 50)
-#        # feed_dict_train = {x: x_test, y: y_test_true}
-#        # print(sess.run(accuracy, feed_dict = feed_dict_train))
-#    sess.close()
