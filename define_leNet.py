@@ -17,18 +17,22 @@ class def_leNet():
         self.num_fc_layer2 = 84
         self.num_fc_layer3 = classification_num
 
-    def get_training_model(self, x, enable_dropout = True):
-        conv1, weight1 = new_convolution_layer(x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')
+    def get_training_model(self, enable_dropout = True):
+        conv1, weight1 = new_convolution_layer(global_x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')
         conv2, weight2 = new_convolution_layer(conv1, self.num_filter_conv_layer1, self.filter_size_conv_layer2, self.filter_size_conv_layer2, self.num_filter_conv_layer2, True, 'SAME')
         fltten_layer, num_fueatures = flatten_layer(conv2, self.num_filter_conv_layer2, self.image_size)
-        fc1,weight_fc1,bias_fc1 = new_fc_layer(fltten_layer, num_fueatures, self.num_fc_layer1, use_relu = True)
-        fc2,weight_fc2,bias_fc2 = new_fc_layer(fc1, self.num_fc_layer1, self.num_fc_layer2, use_relu = True)
+        fc1,weights_fc1,bias_fc1 = new_fc_layer(fltten_layer, num_fueatures, self.num_fc_layer1, use_relu = True)
+        fc2,weights_fc2,bias_fc2 = new_fc_layer(fc1, self.num_fc_layer1, self.num_fc_layer2, use_relu = True)
         if enable_dropout == True:
             fc2 = tf.nn.dropout(fc2, keep_prob = dropout_keep_prob)
-        fc3,weight_fc3,bias_fc3 = new_fc_layer(fc2, self.num_fc_layer2, self.num_fc_layer3, use_relu = False)
-        return fc3
-
-
+        fc3,weights_fc3,bias_fc3 = new_fc_layer(fc2, self.num_fc_layer2, self.num_fc_layer3, use_relu = False)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = fc3, labels = global_y)
+        cost =     tf.reduce_mean(cross_entropy) +\
+                (  tf.nn.l2_loss(weights_fc1) + tf.nn.l2_loss(bias_fc1) \
+                 + tf.nn.l2_loss(weights_fc2) + tf.nn.l2_loss(bias_fc2) \
+                 + tf.nn.l2_loss(weights_fc3) + tf.nn.l2_loss(bias_fc3))  * reg_facor
+        return fc3, cost
+# an instance of LeNet
 leNet = def_leNet()
-leNet.get_training_model(x)
+
 

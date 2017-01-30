@@ -1,10 +1,4 @@
-import tensorflow as tf
-import numpy as np
-import os
-import cv2
-import random
-import time
-image_size = 48
+from global_head_file import *
 
 def new_weights(shape):
     return tf.Variable(tf.random_normal(shape, 0, 0.05))
@@ -79,24 +73,7 @@ def get_detection_model(x):  #this is an example of a simple cnn for detection p
     #catergory = tf.argmax(layer_conv4)
     return layer_conv4
 
-def getData(dirs, numOfClass, start, batch_size,shuffle = False):
-    trainX, trainY = [], []
-    placeholder = [0 for x in range(numOfClass)]
-    for i in range(numOfClass):
-        current_dir = dirs[i]
-        imageNames = (os.listdir(current_dir))
-        for j in range(start, start + batch_size):
-            imageName = imageNames[j]
-            imageName = os.path.join(current_dir, imageName)
-            img = cv2.imread(imageName)
-            imgGray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            imgGrayFilter = cv2.GaussianBlur(imgGray, (3,3), 0)
-            imgGrayFilterResize = cv2.resize(imgGrayFilter,(image_size, image_size))
-            trainX.append(imgGrayFilterResize)
-            placeholder_temp = np.copy(placeholder)
-            placeholder_temp[i] = 1
-            trainY.append(placeholder_temp)
-    return trainX, trainY
+
 
 #def train_neural_network(num_iterations, dirs):
 #    y_true = tf.placeholder(tf.float32,shape = [None, num_classification], name = 'y_true')
