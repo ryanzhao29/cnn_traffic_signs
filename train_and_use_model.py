@@ -33,7 +33,7 @@ def train_network(num_iterations, resume = 0):
             max_num_of_file = 221 #this is the data of folder 0000 which contais the least amount of data of 
             #all catetories
             while start < max_num_of_file - batch_size:
-                x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, 5)
+                x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, batch_size)
                 feed_dict_train = {global_x: x_train, global_y: y_train}
                 nothing, c = sess.run([optimizer, cost], feed_dict = feed_dict_train)
                 total_cost += c
@@ -89,9 +89,9 @@ def batch_detect_image(dir):
             cv2.waitKey(0)
         sess.close()
 
-train_mode = 0
+train_mode = 1
 if train_mode == 0:
     dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00003\\'
     batch_detect_image(dir)
 else:
-    train_network(50, 1)
+    train_network(100, 1)
