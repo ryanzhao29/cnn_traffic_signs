@@ -4,10 +4,11 @@ import os
 import cv2
 import random
 import time
-
+from sklearn.utils import shuffle
 image_size = 32
 classification_num = 43
-color_channels = 3
+classification_num_us = 7
+color_channels = 1
 dropout_keep_prob = 0.5
 reg_facor = 0.01
 batch_size = 20

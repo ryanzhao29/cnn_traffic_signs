@@ -35,7 +35,7 @@ class def_leNet():
                 (  tf.nn.l2_loss(weights_fc1) + tf.nn.l2_loss(bias_fc1) \
                  + tf.nn.l2_loss(weights_fc2) + tf.nn.l2_loss(bias_fc2) \
                  + tf.nn.l2_loss(weights_fc3) + tf.nn.l2_loss(bias_fc3))  * reg_facor
-        return fc3, cost
+        return fc2, fc3, cost #herer we return the fc2 for transfer learning purpose
 
     def get_detection_model(self):
         conv1, weight1 = new_convolution_layer(global_x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')

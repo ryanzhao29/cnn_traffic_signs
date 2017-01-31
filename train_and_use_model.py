@@ -2,6 +2,7 @@ from global_head_file import *
 import preprocessing_data
 from define_leNet import *
 
+
 def image_normalization(img): #the function is not yet implemented
     normalized_image = np.copy(img)
     return normalized_image
@@ -9,7 +10,7 @@ def image_normalization(img): #the function is not yet implemented
 def train_network(num_iterations, resume = 0):
     y_true = tf.placeholder(tf.float32,shape = [None, classification_num], name = 'y_true')
     y_true_cls = tf.argmax(y_true, dimension = 1)
-    raw_output, cost = leNet.get_training_model()
+    NA, raw_output, cost = leNet.get_training_model()
     y_pred = tf.nn.softmax(raw_output)
     y_pred_cls = tf.argmax(y_pred, dimension = 1)
     if resume == 1:
@@ -34,6 +35,7 @@ def train_network(num_iterations, resume = 0):
             #all catetories
             while start < max_num_of_file - batch_size:
                 x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, batch_size)
+                x_train, y_train = shuffle(x_train, y_train)
                 feed_dict_train = {global_x: x_train, global_y: y_train}
                 nothing, c = sess.run([optimizer, cost], feed_dict = feed_dict_train)
                 total_cost += c
@@ -82,6 +84,10 @@ def batch_detect_image(dir):
             image_path = dir + image_name
             image = cv2.imread(image_path)
             img_resize = cv2.resize(image,(image_size, image_size))
+            if color_channels == 1:
+                img_resize = cv2.cvtColor(img_resize, cv2.COLOR_BGR2GRAY)
+                img_resize = np.expand_dims(img_resize, 3)
+            
             classification = sess.run([y_cls], feed_dict={global_x: [img_resize]})
             classification = classification[0][0][0]
             cv2.imshow(traffic_sign_dictionary[classification], image)
@@ -91,7 +97,7 @@ def batch_detect_image(dir):
 
 train_mode = 1
 if train_mode == 0:
-    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00003\\'
+    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00005\\'
     batch_detect_image(dir)
 else:
     train_network(50, 1)

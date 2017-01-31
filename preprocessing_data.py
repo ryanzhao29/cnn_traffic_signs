@@ -1,5 +1,5 @@
 from global_head_file import *
-def getData(work_dir, classification_num, start, batch_size, shuffle = False):
+def getData(work_dir, classification_num, start, batch_size, shuffle = False, data_augmentation = True): #data shuffling is not yet implemented
     trainX, trainY = [], []
     dirs = os.listdir(work_dir)
     for dir in dirs:
@@ -12,12 +12,21 @@ def getData(work_dir, classification_num, start, batch_size, shuffle = False):
             imageName = os.path.join(dir_full_path, imageName)
             img = cv2.imread(imageName)
             img_resize = cv2.resize(img, (image_size, image_size))
+            if color_channels == 1:
+                img_resize = cv2.cvtColor(img_resize, cv2.COLOR_BGR2GRAY)
+                img_resize = np.expand_dims(img_resize, 2)
             #cv2.imshow('resized_image', img_resize)
             #cv2.waitKey(0)
-            for iii in range(data_augmentation_factor):
-                img_distorted_resize = image_distortion(img_resize)
-                trainX.append(img_distorted_resize)
-                placeholder_temp = np.copy(classification_output_placeholder)
+            if data_augmentation == True: #if data augmentation is on then augment the data using random transformation. otherwise use original image
+                for iii in range(data_augmentation_factor):
+                    img_distorted_resize = image_distortion(img_resize)
+                    img_distorted_resize = np.expand_dims(img_distorted_resize, 2)
+                    trainX.append(img_distorted_resize)
+                    placeholder_temp = np.copy(classification_output_placeholder)
+                    placeholder_temp[index] = 1
+                    trainY.append(placeholder_temp)
+            else:
+                trainX.append(img_resize)
                 placeholder_temp[index] = 1
                 trainY.append(placeholder_temp)
     return trainX, trainY
