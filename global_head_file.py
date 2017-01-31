@@ -12,7 +12,7 @@ color_channels = 1
 dropout_keep_prob = 0.5
 reg_facor = 0.01
 batch_size = 20
-data_augmentation_factor = 10 #for each sample generate number of data_augmentation_factor new samples by randomly change the original sample
+data_augmentation_factor = 5 #for each sample generate number of data_augmentation_factor new samples by randomly change the original sample
 global_x = tf.placeholder(tf.float32, shape = [None, None, None, color_channels])
 global_y = tf.placeholder(tf.float32, shape = [None, classification_num])
 image_dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\\'

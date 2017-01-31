@@ -15,7 +15,7 @@ def new_convolution_layer(input, num_input, filter_size1, filter_size2, num_outp
     if use_pooling:
         layer = tf.nn.max_pool(value = layer, ksize = [1,2,2,1],strides = [1,2,2,1],padding = padding)
     layer = tf.nn.relu(layer)
-    return layer, weights
+    return layer, weights, bias
 
 def flatten_layer(layer, num_filters2, img_size):
     layer_shape = layer.get_shape()
