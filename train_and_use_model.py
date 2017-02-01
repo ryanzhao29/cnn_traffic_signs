@@ -39,7 +39,7 @@ def train_network(num_iterations, resume = 0):
             #all catetories
             while start < max_num_of_file:# - batch_size:
                 x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, batch_size)
-                x_train, y_train = shuffle(x_train, y_train)
+
                 feed_dict_train = {global_x: x_train, global_y: y_train}
                 nothing, c = sess.run([optimizer, cost], feed_dict = feed_dict_train)
                 total_cost += c
@@ -100,9 +100,9 @@ def batch_detect_image(dir):
         sess.close()
 
 train_mode = 0
-if train_mode == 1:
+if train_mode == 0:
     dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00040\\'
     dir = r'C:\Users\user\Desktop\test\speed limit and traffic sign\1\\'
     batch_detect_image(dir)
 else:
-    train_network(30, 1)
+    train_network(50, 1)

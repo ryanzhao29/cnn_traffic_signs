@@ -28,6 +28,8 @@ class def_leNet():
         #self.bias_fc1
         #self.bias_fc2
         #self.bias_fc3
+        self.weights_fc3_usa = []
+        self.bias_fc3_usa = []
 
     def get_training_model(self, enable_dropout = True):
         conv1, self.weights_conv1, self.bias_conv1 = new_convolution_layer(global_x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')

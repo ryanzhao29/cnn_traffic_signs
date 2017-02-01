@@ -7,7 +7,7 @@ import time
 from sklearn.utils import shuffle
 image_size = 32
 classification_num = 43
-classification_num_us = 7
+classification_num_usa = 7
 color_channels = 1
 dropout_keep_prob = 0.5
 reg_facor = 0.01
@@ -15,10 +15,12 @@ batch_size = 20
 data_augmentation_factor = 5 #for each sample generate number of data_augmentation_factor new samples by randomly change the original sample
 global_x = tf.placeholder(tf.float32, shape = [None, None, None, color_channels])
 global_y = tf.placeholder(tf.float32, shape = [None, classification_num])
+global_y_usa = tf.placeholder(tf.float32, shape = [None, classification_num_usa])
 image_dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\\'
+image_dir_usa = r'C:\Users\user\Desktop\test\speed limit and traffic sign\\'
 data_dir = r'C:\Users\user\Desktop\test\checkpoint'
 #dirs = [str(ii) for ii in range(classification_num)]
-classification_output_placeholder = [0 for x in range(classification_num)]
+
 
 traffic_sign_dictionary = [ '0 = speed limit 20 (prohibitory)',
                             '1 = speed limit 30 (prohibitory)',
