@@ -18,6 +18,7 @@ class def_leNet():
         self.num_fc_layer1 = 120
         self.num_fc_layer2 = 84
         self.num_fc_layer3 = classification_num
+        self.num_fc_layer3_usa = classification_num_usa
         #self.weights_conv1
         #self.weights_conv2
         #self.weights_fc1
@@ -49,7 +50,7 @@ class def_leNet():
                  + tf.nn.l2_loss(self.weights_fc3) + tf.nn.l2_loss(self.bias_fc3))  * reg_facor
         return fc2, fc3, cost #herer we return the fc2 for transfer learning purpose
 
-    def get_detection_model(self):
+    def get_detection_model_orginal(self):
         conv1, self.weights_conv1, self.bias_conv1  = new_convolution_layer(global_x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')
         conv2, self.weights_conv2, self.bias_conv2 = new_convolution_layer(conv1, self.num_filter_conv_layer1, self.filter_size_conv_layer2, self.filter_size_conv_layer2, self.num_filter_conv_layer2, True, 'SAME')
         fltten_layer, num_fueatures = flatten_layer(conv2, self.num_filter_conv_layer2, self.image_size)
@@ -78,6 +79,40 @@ class def_leNet():
         layer_conv_fc3 = tf.nn.conv2d(layer_conv_fc2, weights_conv_fc3, [1,1,1,1], 'VALID') + self.bias_fc3
         #layer_conv_fc2 = tf.nn.relu(layer_conv_fc2) final out put dose not use relu
         return layer_conv_fc3
+    
+    def get_detection_model_feature_extraction(self):
+        conv1, self.weights_conv1, self.bias_conv1  = new_convolution_layer(global_x, self.color_channel, self.filter_size_conv_layer1, self.filter_size_conv_layer1, self.num_filter_conv_layer1, True, 'SAME')
+        conv2, self.weights_conv2, self.bias_conv2 = new_convolution_layer(conv1, self.num_filter_conv_layer1, self.filter_size_conv_layer2, self.filter_size_conv_layer2, self.num_filter_conv_layer2, True, 'SAME')
+        fltten_layer, num_fueatures = flatten_layer(conv2, self.num_filter_conv_layer2, self.image_size)
+        #need to conver the 3 dense layer to conv layer so the network can take images of any size
+        #fc1, weights_fc1, bias_fc1 = new_fc_layer(fltten_layer, num_fueatures, self.num_fc_layer1, use_relu = True)
+        #here we have to manually transform the dense layer to conv layer as our function dose not take weights and bias as inputs
+        #this is the original weights and bias of fc1
+        self.weights_fc1 = new_weights(shape = [num_fueatures, self.num_fc_layer1])
+        self.bias_fc1 = new_bias(self.num_fc_layer1)
+        #transform this weight and bias for conv layer
+        weights_conv_fc1 = tf.reshape(self.weights_fc1, [int(image_size/4), int(image_size/4), self.num_filter_conv_layer2, self.num_fc_layer1])
+        layer_conv_fc1 = tf.nn.conv2d(conv2, weights_conv_fc1, [1,1,1,1], 'VALID') + self.bias_fc1
+        layer_conv_fc1 = tf.nn.relu(layer_conv_fc1)
+        #repeat this for fc2
+        self.weights_fc2 = new_weights(shape = [self.num_fc_layer1, self.num_fc_layer2])
+        self.bias_fc2 = new_bias(self.num_fc_layer2)
+        #transform this weight and bias for conv layer
+        weights_conv_fc2 = tf.reshape(self.weights_fc2, [1, 1 , self.num_fc_layer1, self.num_fc_layer2])
+        layer_conv_fc2 = tf.nn.conv2d(layer_conv_fc1, weights_conv_fc2, [1,1,1,1], 'VALID') + self.bias_fc2
+        layer_conv_fc2 = tf.nn.relu(layer_conv_fc2)
+        #repeat this for fc3 but use fc obtained from feature extraction
+        #these weights_fc3 and self.bias_fc3  are placeholder to pass the saver, they are not used anywhere in the feature_extraction model
+        self.weights_fc3 = new_weights(shape = [self.num_fc_layer2, self.num_fc_layer3])
+        self.bias_fc3 = new_bias(self.num_fc_layer3)
+
+        self.weights_fc3_usa = new_weights(shape = [self.num_fc_layer2, self.num_fc_layer3_usa])
+        self.bias_fc3_usa = new_bias(self.num_fc_layer3_usa)
+        #transform this weight and bias for conv layer
+        weights_conv_fc3_usa = tf.reshape(self.weights_fc3_usa, [1, 1 , self.num_fc_layer2, self.num_fc_layer3_usa ])
+        layer_conv_fc3_usa = tf.nn.conv2d(layer_conv_fc2, weights_conv_fc3_usa, [1,1,1,1], 'VALID') + self.bias_fc3_usa
+        #layer_conv_fc2 = tf.nn.relu(layer_conv_fc2) final out put dose not use relu
+        return layer_conv_fc3_usa
 
 # create an instance of LeNet
 leNet = def_leNet()

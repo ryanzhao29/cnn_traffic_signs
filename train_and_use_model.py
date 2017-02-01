@@ -9,7 +9,7 @@ def image_normalization(img): #the function is not yet implemented
 def train_network(num_iterations, resume = 0):
     y_true = tf.placeholder(tf.float32,shape = [None, classification_num], name = 'y_true')
     y_true_cls = tf.argmax(y_true, dimension = 1)
-    NA, raw_output, cost = leNet.get_training_model()
+    NA, raw_output, cost = leNet.get_detection_model_orginal()
     y_pred = tf.nn.softmax(raw_output)
     y_pred_cls = tf.argmax(y_pred, dimension = 1)
     if resume == 1:

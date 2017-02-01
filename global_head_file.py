@@ -7,7 +7,7 @@ import time
 from sklearn.utils import shuffle
 image_size = 32
 classification_num = 43
-classification_num_usa = 7
+classification_num_usa = 6
 color_channels = 1
 dropout_keep_prob = 0.5
 reg_facor = 0.01
