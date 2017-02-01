@@ -84,5 +84,6 @@ dir = r'C:\Users\user\Desktop\test\speed limit and traffic sign\2\\'
 
 #batch_detect_image(dir)
 
+transfer_learning_train(20, resume = False, feature_extraction_phase = feature_extraction_status.feature_extraction)
 
 

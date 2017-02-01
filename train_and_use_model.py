@@ -9,7 +9,7 @@ def image_normalization(img): #the function is not yet implemented
 def train_network(num_iterations, resume = 0):
     y_true = tf.placeholder(tf.float32,shape = [None, classification_num], name = 'y_true')
     y_true_cls = tf.argmax(y_true, dimension = 1)
-    NA, raw_output, cost = leNet.get_detection_model_orginal()
+    NA, raw_output, cost = leNet.get_training_model(enable_dropout = True, feature_extraction_phase = feature_extraction_status.bottleneck)
     y_pred = tf.nn.softmax(raw_output)
     y_pred_cls = tf.argmax(y_pred, dimension = 1)
     if resume == 1:
@@ -22,7 +22,7 @@ def train_network(num_iterations, resume = 0):
     saver = tf.train.Saver([   leNet.weights_fc1,     leNet.bias_fc1,
                                leNet.weights_fc2,     leNet.bias_fc2,
                                leNet.weights_fc3,     leNet.bias_fc3,
-                               leNet.weights_conv1,   leNet.bias_conv1 ,
+                               leNet.weights_conv1,   leNet.bias_conv1,
                                leNet.weights_conv2,   leNet.bias_conv2 ])
 
     fileToSave = data_dir + "\model.ckpt"
@@ -75,7 +75,7 @@ def detect_traffic_sign(image): #this image should be a color image of size 32 x
         sess.close()
 
 def batch_detect_image(dir):
-    classification = leNet.get_detection_model()
+    classification = leNet.get_detection_model(feature_extraction = False)
     y_pred = tf.nn.softmax(classification[0])
     y_cls = tf.argmax(y_pred, dimension = 2)
     saver = tf.train.Saver()
@@ -99,10 +99,10 @@ def batch_detect_image(dir):
             cv2.waitKey(0)
         sess.close()
 
-train_mode = 0
+train_mode = 1
 if train_mode == 0:
-    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00040\\'
-    dir = r'C:\Users\user\Desktop\test\speed limit and traffic sign\1\\'
+    dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00007\\'
+    #dir = r'C:\Users\user\Desktop\test\speed limit and traffic sign\10\\'
     batch_detect_image(dir)
 else:
     train_network(50, 1)
