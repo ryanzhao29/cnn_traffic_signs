@@ -21,6 +21,12 @@ image_dir_usa = r'C:\Users\user\Desktop\test\speed limit and traffic sign\\'
 data_dir = r'C:\Users\user\Desktop\test\checkpoint'
 #dirs = [str(ii) for ii in range(classification_num)]
 
+class classfeature_extraction_status():
+    def __init__(self):
+        self.bottleneck          = 0 #means train the original network, to provide the 'pretrained' network
+        self.feature_extraction  = 1 #train the new fc layer only
+        self.fine_tune           = 2 #train both the new fc layer and the network that provide bottleneck feature
+feature_extraction_status = classfeature_extraction_status()
 
 traffic_sign_dictionary = [ '0 = speed limit 20 (prohibitory)',
                             '1 = speed limit 30 (prohibitory)',
