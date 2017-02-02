@@ -8,11 +8,11 @@ def getData(work_dir, classification_num, start, batch_size, data_shuffle = True
     for dir in dirs:
         index = int(dir) #used to define the one hot vector
         dir_full_path = work_dir + dir
-        imageNames = os.listdir(dir_full_path)
+        imageNames = (os.listdir(dir_full_path))
         for j in range(start, start + batch_size):
+
             file_num = int(random.uniform(0, len(imageNames) - 1))#this would pick up image randomly to ensure most data are used intead of using fixed part of the samples.
             imageName = imageNames[file_num]
-           # print(file_num)
             imageName = os.path.join(dir_full_path, imageName)
             img = cv2.imread(imageName)
             img_resize = cv2.resize(img, (image_size, image_size))

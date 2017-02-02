@@ -1,32 +1,37 @@
 from global_head_file import *
 
-def new_weights(shape, mu = 0, sigma = 0.05):
-    return tf.Variable(tf.random_normal(shape, mu, sigma))
+def new_weights(shape):
+    return tf.Variable(tf.random_normal(shape, 0, 0.05))
 
 def new_bias(length):
     return tf.Variable(tf.random_normal(shape = [length]))
 
-def new_convolution_layer(input, weights, bias, use_pooling = True, padding = 'SAME'):
-    layer = tf.nn.conv2d(input = input, filter = weights, strides = [1,1,1,1],padding = padding)
-    layer += bias
+def new_convolution_layer(input, num_input, filter_size1, filter_size2, num_output, use_pooling = True, padding = 'SAME'):
+    #conv 层的的权重的纬度[卷积滤波器宽度, 卷积滤波器宽度, 本层输入数量, 本层输出数量]
+    shape = [filter_size1, filter_size2, num_input, num_output] #[filter_size1, filter_size2, num_input,num_output]
+    weights = new_weights(shape)
+    bias = new_bias(num_output)
+    layer = tf.nn.conv2d(input = input, filter = weights, strides = [1,1,1,1],padding = padding) + bias
     if use_pooling:
         layer = tf.nn.max_pool(value = layer, ksize = [1,2,2,1],strides = [1,2,2,1],padding = padding)
     layer = tf.nn.relu(layer)
-    return layer
+    return layer, weights, bias
 
-def flatten_layer(layer, num_filters, img_size):
-    #layer_shape = layer.get_shape()
+def flatten_layer(layer, num_filters2, img_size):
+    layer_shape = layer.get_shape()
     # num_fueatures = layer_shape[1:4].num_elements()
-    num_fueatures = (int(img_size/4) ** 2) * num_filters #this part is hard coded because we 
+    num_fueatures = (int(img_size/4) ** 2) * num_filters2 #this part is hard coded because we 
     #have two max pooling layers that reduce the size of the image to img_size/4.
     layer_flat = tf.reshape(layer,[-1,num_fueatures]) 
     return layer_flat, num_fueatures
 
-def new_fc_layer(input, weights, bias, use_relu = True):
+def new_fc_layer(input,num_inputs, num_outputs, use_relu = True):
+    weights = new_weights(shape = [num_inputs, num_outputs])
+    bias = new_bias(length = num_outputs)
     layer = tf.matmul(input, weights) + bias
     if use_relu:
         layer = tf.nn.relu(layer)
-    return layer
+    return layer,weights,bias
 
 def get_train_model(x): #this is an example of a simple cnn for training purpose, not used anywhere in the code
     #x_image = tf.reshape(x, [-1, img_size, img_size, num_input1]) 

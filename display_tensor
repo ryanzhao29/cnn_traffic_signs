@@ -1,0 +1,18 @@
+from global_head_file import *
+from define_leNet import *
+from preprocessing_data import *
+from define_neural_network import *
+ckpt_file = data_dir + "\model.ckpt"
+saver_usa_traffic_all = tf.train.Saver([leNet.weights_fc1,       leNet.bias_fc1,
+                                        leNet.weights_fc2,       leNet.bias_fc2,
+                                        leNet.weights_fc3,       leNet.bias_fc3,
+                                        leNet.weights_conv1,     leNet.bias_conv1,
+                                        leNet.weights_conv2,     leNet.bias_conv2,
+                                        leNet.weights_fc3_FE,    leNet.bias_fc3_FE])
+with tf.Session() as sess:
+    xxx = leNet.weights_fc3_FE
+    sess.run(tf.global_variables_initializer())
+    saver_usa_traffic_all.restore(sess, ckpt_file)
+    tensor_value = sess.run([xxx])
+    print(tensor_value)
+    sess.close()
