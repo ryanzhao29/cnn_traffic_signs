@@ -10,7 +10,7 @@ saver_usa_traffic_all = tf.train.Saver([leNet.weights_fc1,       leNet.bias_fc1,
                                         leNet.weights_conv2,     leNet.bias_conv2,
                                         leNet.weights_fc3_FE,    leNet.bias_fc3_FE])
 with tf.Session() as sess:
-    xxx = leNet.bias_conv1
+    xxx = leNet.weights_fc3_FE
     sess.run(tf.global_variables_initializer())
     saver_usa_traffic_all.restore(sess, ckpt_file)
     tensor_value = sess.run([xxx])

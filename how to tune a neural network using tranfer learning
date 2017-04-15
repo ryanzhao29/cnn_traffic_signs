@@ -1,0 +1,11 @@
+Today I have successfully trained a leNet to recognize the 6 categories of usa traffic signs.
+The results are very good, most importantly, the network dose not get confused by a variety of background images
+that look like a real traffic sign. Here the procedure to obtained the network.
+1. trained the lenet using german traffic sign data base.
+2. run feature extraction with dropout turned OFF!, using default learning rate(only tune the new fc layer).
+3. Turn on the dropout and run fine tune with a low learning rate of 5e-4.
+4. Turn on the dropout and run fine tune with a low learning rate of 1e-4.
+
+the following one is optional. may not give good results.....(not used in this test)
+
+5. Turn off the dropout and run fine tune with am even lower learning rate of 1e-5.

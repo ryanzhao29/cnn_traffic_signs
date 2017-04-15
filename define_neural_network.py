@@ -4,13 +4,13 @@ def new_weights(shape, mu = 0, sigma = 0.05):
     return tf.Variable(tf.random_normal(shape, mu, sigma))
 
 def new_bias(length):
-    return tf.Variable(tf.constant(value = 0.0, shape = [length]))
+    return tf.Variable(tf.random_normal(shape = [length]))
 
 def new_convolution_layer(input, weights, bias, use_pooling = True, padding = 'SAME'):
     layer = tf.nn.conv2d(input = input, filter = weights, strides = [1,1,1,1],padding = padding)
     layer += bias
     if use_pooling:
-        layer = tf.nn.max_pool(value = layer, ksize = [1,2,2,1], strides = [1,2,2,1], padding = padding)
+        layer = tf.nn.max_pool(value = layer, ksize = [1,2,2,1],strides = [1,2,2,1],padding = padding)
     layer = tf.nn.relu(layer)
     return layer
 
