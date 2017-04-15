@@ -1,12 +1,12 @@
 from global_head_file import *
 import preprocessing_data
 from define_leNet import *
-saver = tf.train.Saver([   leNet.weights_fc1,      leNet.bias_fc1,
-                            leNet.weights_fc2,     leNet.bias_fc2,
-                            leNet.weights_fc3,     leNet.bias_fc3,
-                            leNet.weights_conv1,   leNet.bias_conv1,
-                            leNet.weights_conv2,   leNet.bias_conv2,
-                            leNet.weights_fc3_FE,  leNet.bias_fc3_FE])
+saver = tf.train.Saver([leNet.weights_fc1,     leNet.bias_fc1,
+                        leNet.weights_fc2,     leNet.bias_fc2,
+                        leNet.weights_fc3,     leNet.bias_fc3,
+                        leNet.weights_conv1,   leNet.bias_conv1,
+                        leNet.weights_conv2,   leNet.bias_conv2,
+                        leNet.weights_fc3_FE,  leNet.bias_fc3_FE])
 
 checkpoint_path = data_dir + "\model.ckpt"
 
@@ -14,40 +14,52 @@ def image_normalization(img): #the function is not yet implemented
     normalized_image = np.copy(img)
     return normalized_image
 
-def train_network_BN(num_iterations, resume = 0):
-    y_true = tf.placeholder(tf.float32, shape = [None, classification_num], name = 'y_true')
-    y_true_cls = tf.argmax(y_true, dimension = 1)
-    NA, raw_output, cost = leNet.get_training_model(enable_dropout = True, feature_extraction_phase = feature_extraction_status.bottleneck)
-    y_pred = tf.nn.softmax(raw_output)
-    y_pred_cls = tf.argmax(y_pred, dimension = 1)
-    if resume == 1:
-        #optimizer = tf.train.AdamOptimizer(learning_rate = 1e-3).minimize(cost)
+def train_network_BN(num_iterations, resume = 0, learning_rate = 0):
+    NA, raw_output, cost, cross_entrophy = leNet.get_training_model(enable_dropout = True, feature_extraction_phase = feature_extraction_status.bottleneck)
+    NA1, raw_output_no_dropout, cost1, cross_entrophy1 = leNet.get_training_model(enable_dropout = False,feature_extraction_phase = feature_extraction_status.bottleneck)
+    #learning rate
+    if learning_rate == 0:
         optimizer = tf.train.AdamOptimizer().minimize(cost)
     else:
-        optimizer = tf.train.AdamOptimizer().minimize(cost)
+        optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cost)
+    #calculate learning accuracy on training set
+    y_true_cls = tf.argmax(global_y, dimension = 1)
+    y_pred = tf.nn.softmax(raw_output_no_dropout)
+    y_pred_cls = tf.argmax(y_pred, dimension = 1)
     correct_prediction = tf.equal(y_pred_cls, y_true_cls)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    error = 1000
+
     with tf.Session() as sess:
-        start = 0
+        best_accuracy = 0
         sess.run(tf.global_variables_initializer())
         if resume == 1:
             saver.restore(sess, checkpoint_path)
         for i in range(num_iterations):
             total_cost = 0
+            total_entropy = 0
+            accuracy_sum = 0
             start = 0
+            counter = 0.0
             num_training_sample = 221 #this is the data length of folder 0000 which contais the least amount of data of 
             #all catetories
-            while start < num_training_sample:# - batch_size:
+            while start < num_training_sample:
                 x_train, y_train = preprocessing_data.getData(image_dir, classification_num, start, batch_size)
                 feed_dict_train = {global_x: x_train, global_y: y_train}
-                nothing, c = sess.run([optimizer, cost], feed_dict = feed_dict_train)
-                total_cost += c
-                start += batch_size
-            print('Epoch', i, 'Completed out of ', num_iterations, 'loss is', total_cost)
-            if total_cost < error:
+                _, cost_temp, accuracy_temp, entropy_temp = sess.run([optimizer, cost, accuracy, cross_entrophy], feed_dict = feed_dict_train)
+                total_cost      += cost_temp
+                accuracy_sum    += accuracy_temp
+                total_entropy   += entropy_temp
+                start           += batch_size
+                counter         += 1.0
+            average_accuracy = accuracy_sum/counter
+            print('Epoch', i, 'of', num_iterations, 'cost is', total_cost, ', entropy is', total_entropy, 'and accuracy is', average_accuracy)
+            #save the check point if accuracy improves.
+            if average_accuracy > best_accuracy:
                 saver.save(sess, checkpoint_path)
-                error = total_cost
+                best_accuracy = average_accuracy
+            if average_accuracy > 0.96:
+                break
+    print('the best accuracy over the training set is', best_accuracy)
     sess.close()
 
 def batch_detect_image_BN(dir):
@@ -78,13 +90,17 @@ def batch_detect_image_BN(dir):
         sess.close()
 
 if __name__ == '__main__':
-    train_mode = 1
+    train_mode = 0
     if train_mode == 0:
-        dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00000\\'
+        dir = r'C:\Users\user\Desktop\test\traffic sign detection data2\00002\\'
         #dir = r'C:\Users\user\Desktop\test\speed limit and traffic sign\10\\'
+        dir = r'C:\Users\user\Desktop\test\validation stop sign and speed limits\\'
+        dir = r'C:\Users\user\Desktop\test\traffic sign detection data_validation\15\\'
+        dir = r'D:\doanload\GTSRB\Final_Test\Images\\'
         batch_detect_image_BN(dir)
     else:
-        train_network_BN(50, 0)
+        train_network_BN(num_iterations = 300, resume = 1, learning_rate = 2e-4)
+
 
 
 
